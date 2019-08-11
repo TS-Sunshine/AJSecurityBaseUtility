@@ -62,6 +62,7 @@ typedef void(^TouchIdValidationFailureBack)(LAError result);
 
 /**
  生物识别支付开关是否打开
+ 这个方法是需要使用NSUserDefaults将开关标志保存在本地的。
 
  @return YES 打开 NO关闭
  */
@@ -70,7 +71,7 @@ typedef void(^TouchIdValidationFailureBack)(LAError result);
 
 /**
  是否开启生物识别支付
-
+ 这个方法是需要使用NSUserDefaults将开关标志从本地取出。
  @param open YES 开启 NO 关闭
  */
 - (void)biometricsWith:(BOOL)open;
