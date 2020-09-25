@@ -23,46 +23,18 @@
     static SecurityBaseUtility *instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        instance = [[SecurityBaseUtility alloc] init];
+        instance = [[super allocWithZone:NULL] init];
     });
     return instance;
 }
 
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        
-    }
-    return self;
++ (instancetype)allocWithZone:(struct _NSZone *)zone {
+    return [self sharedInstance];
 }
 
-- (LAContext *)context {
-    if (!_context) {
-        _context = _context = [[LAContext alloc] init];
-    }
-    return _context;
-}
-
-
-- (BOOL)isFaceID{
-    if (@available(iOS 11.0, *)) {
-        switch (self.context.biometryType) {
-            case LABiometryTypeNone:
-                return NO;
-                break;
-            case LABiometryTypeTouchID:
-                return NO;
-                break;
-            case LABiometryTypeFaceID:
-                return YES;
-                break;
-            default:
-                return NO;
-                break;
-        }
-    } else {
-        return NO;
-    }
+/// 获取手机的生物识别类型
+- (LABiometryType)getBiometricsType {
+    return self.context.biometryType;
 }
 
 - (BOOL)isCanUseBiometrics {
@@ -95,9 +67,9 @@
     }
 }
 
-- (void)evaluatePolicy:(NSString *)localizedReason
+- (void)canEvaluatePolicy:(NSString *)localizedReason
          fallbackTitle:(NSString *)title
-          SuccesResult:(void(^)())backSucces
+          SuccesResult:(void(^)(BOOL))backSucces
          FailureResult:(TouchIdValidationFailureBack)backFailure {
     
     //初始化上下文对象
@@ -111,11 +83,11 @@
             [self.context evaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics
                          localizedReason:localizedReason
                                    reply:
-             ^(BOOL succes, NSError *error) {
-                 if (succes) {
+             ^(BOOL success, NSError *error) {
+                 if (success) {
                      //验证成功，返回主线程处理
                      dispatch_async(dispatch_get_main_queue(), ^{
-                         backSucces(succes);
+                         backSucces(success);
                      });
                  } else {
                      NSLog(@"%@",error.localizedDescription);
@@ -146,7 +118,7 @@
         NSUserDefaults *touchIdData = [NSUserDefaults standardUserDefaults];
         if (@available(iOS 9.0, *)) {
             NSData *oldData = [self.context evaluatedPolicyDomainState];
-            [touchIdData setObject:oldData forKey:@"TouchIdData"];
+            [touchIdData setObject:oldData forKey:@"BiometricsData"];
             [touchIdData synchronize];
         } else {
             // Fallback on earlier versions
@@ -155,9 +127,9 @@
     }
 }
 
-- (NSData *)getTouchIdData{
+- (NSData *)getBiometricsData{
     NSUserDefaults *touchIdData = [NSUserDefaults standardUserDefaults];
-    NSData *old = [touchIdData objectForKey:@"TouchIdData"];
+    NSData *old = [touchIdData objectForKey:@"BiometricsData"];
     return old;
 }
 
@@ -166,7 +138,7 @@
     if ([self.context canEvaluatePolicy: LAPolicyDeviceOwnerAuthenticationWithBiometrics error:&error]){
         NSData *new = [self.context evaluatedPolicyDomainState];
         if (@available(iOS 8.0, *)) {
-            if ([[self getTouchIdData] isEqual:new]) {
+            if ([[self getBiometricsData] isEqual:new]) {
                 return NO;
             }else{
                 return YES;
@@ -196,4 +168,14 @@
     [[NSUserDefaults standardUserDefaults] setObject:[NSString stringWithFormat:@"%d",open] forKey:[NSString stringWithFormat:@"%@",@"BiometricsOpened"]];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
+
+
+#pragma mark setter and getter
+- (LAContext *)context {
+    if (!_context) {
+        _context = _context = [[LAContext alloc] init];
+    }
+    return _context;
+}
+
 @end

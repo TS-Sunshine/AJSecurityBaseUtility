@@ -21,11 +21,7 @@
 }
 
 - (IBAction)typeAction:(id)sender {
-    if ([[SecurityBaseUtility sharedInstance] isFaceID]) {
-        NSLog(@"是FaceID");
-    }else{
-        NSLog(@"是TouchID");
-    }
+    
 }
 
 @end

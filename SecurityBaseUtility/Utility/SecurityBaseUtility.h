@@ -29,9 +29,9 @@ typedef void(^TouchIdValidationFailureBack)(LAError result);
  *  @param backSucces      成功返回Block
  *  @param backFailure     失败返回Block
  */
-- (void)evaluatePolicy:(NSString *)localizedReason
+- (void)canEvaluatePolicy:(NSString *)localizedReason
          fallbackTitle:(NSString *)title
-          SuccesResult:(void(^)(void))backSucces
+          SuccesResult:(void(^)(BOOL))backSucces
          FailureResult:(TouchIdValidationFailureBack)backFailure;
 
 /**
@@ -41,12 +41,6 @@ typedef void(^TouchIdValidationFailureBack)(LAError result);
  */
 - (BOOL)isCanUseBiometrics;
 
-/**
- 是否是faceID
-
- @return YES 是  NO 不是 为touchID
- */
-- (BOOL)isFaceID;
 
 /**
  判断指纹库是否发生变化
